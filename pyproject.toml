@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "notebook-parser"
 version = "0.1.0"
@@ -14,6 +18,9 @@ dependencies = [
     "numpy>=2.4.1",
 ]
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0.0",
@@ -22,7 +29,7 @@ dev = [
 ]
 
 [project.scripts]
-notebook-parser = "main:app"
+notebook-parser = "notebook_parser.cli:app"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
