@@ -9,6 +9,8 @@ from typing import Optional
 from .ocr import extract_text_local, preprocess_image
 from .template_engine import TemplateEngine
 from .formatters import format_for_template
+from .llm.claude_vision import extract_with_claude
+from .llm.ollama_vision import extract_with_ollama
 
 app = typer.Typer(help="Parse physical notebook images to markdown notes")
 
@@ -58,12 +60,37 @@ def parse(
     model: str = typer.Option(
         "local",
         "--model",
-        help="Model to use: 'local' (TrOCR) or 'claude' (API)"
+        help="Model: 'local' (TrOCR), 'claude' (API), or 'ollama' (local LLM)"
     ),
     preprocess: bool = typer.Option(
         True,
         "--preprocess/--no-preprocess",
-        help="Apply image optimization"
+        help="Apply image optimization (for TrOCR only)"
+    ),
+    optimize: bool = typer.Option(
+        True,
+        "--optimize/--no-optimize",
+        help="Optimize image for LLM vision (resize, compress)"
+    ),
+    grayscale: bool = typer.Option(
+        False,
+        "--grayscale",
+        help="Convert to grayscale to save tokens (~3x reduction)"
+    ),
+    api_key: Optional[str] = typer.Option(
+        None,
+        "--api-key",
+        help="Anthropic API key (or set ANTHROPIC_API_KEY env var)"
+    ),
+    ollama_model: str = typer.Option(
+        "llama3.2-vision",
+        "--ollama-model",
+        help="Ollama model name"
+    ),
+    ollama_url: str = typer.Option(
+        "http://localhost:11434",
+        "--ollama-url",
+        help="Ollama API endpoint"
     ),
 ) -> None:
     """
@@ -90,16 +117,42 @@ def parse(
     try:
         typer.echo(f"Processing {input_path.name}...", err=True)
 
+        # Load template content for LLM context
+        template_content = template_path.read_text()
+
         # Extract text based on model choice
         if model == "local":
             typer.echo("Using local TrOCR model...", err=True)
             extracted_text = extract_text_local(input_path, preprocess=preprocess)
+
         elif model == "claude":
-            typer.echo("Error: Claude API integration not yet implemented.", err=True)
-            typer.echo("Use --model local for now.", err=True)
-            raise typer.Exit(1)
+            typer.echo("Using Claude 3.5 Sonnet vision API...", err=True)
+            if optimize:
+                typer.echo(f"  Optimizing image (grayscale: {grayscale})...", err=True)
+            extracted_text = extract_with_claude(
+                image_path=input_path,
+                template_content=template_content,
+                api_key=api_key,
+                optimize=optimize,
+                grayscale=grayscale
+            )
+
+        elif model == "ollama":
+            typer.echo(f"Using Ollama vision model ({ollama_model})...", err=True)
+            if optimize:
+                typer.echo(f"  Optimizing image (grayscale: {grayscale})...", err=True)
+            extracted_text = extract_with_ollama(
+                image_path=input_path,
+                template_content=template_content,
+                model=ollama_model,
+                ollama_url=ollama_url,
+                optimize=optimize,
+                grayscale=grayscale
+            )
+
         else:
-            typer.echo(f"Error: Unknown model '{model}'. Use 'local' or 'claude'.", err=True)
+            typer.echo(f"Error: Unknown model '{model}'.", err=True)
+            typer.echo("Valid options: 'local', 'claude', or 'ollama'", err=True)
             raise typer.Exit(1)
 
         # Format into template variables
