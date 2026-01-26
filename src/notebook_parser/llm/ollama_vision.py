@@ -86,7 +86,7 @@ Return the extracted text:"""
     response = requests.post(
         f"{ollama_url}/api/generate",
         json=payload,
-        timeout=120  # Vision models can be slow
+        timeout=600  # Vision models can be slow
     )
     response.raise_for_status()
 
