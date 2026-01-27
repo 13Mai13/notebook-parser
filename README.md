@@ -7,6 +7,7 @@ Transform physical notebook images into structured markdown notes using AI visio
 - **Multiple model support**: Choose between local TrOCR, Claude API, or local Ollama vision models
 - **Image optimization**: Automatic resizing, compression, and optional grayscale conversion to reduce token usage
 - **Template-based output**: Customizable markdown templates for consistent note formatting
+- **Custom prompts**: Use different prompts for different extraction tasks (e.g., bullet points, detailed notes)
 - **Test-driven development**: Comprehensive pytest suite with 73% test coverage
 
 ## Installation
@@ -83,6 +84,7 @@ notebook-parser parse [OPTIONS]
 
 **Template Options:**
 - `-t, --template PATH`: Custom template file (default: templates/note-template.md)
+- `-p, --prompt TEXT`: Prompt name to use (without .txt extension, e.g., 'bullet-points')
 
 ### Read Command (Quick OCR)
 
@@ -115,6 +117,11 @@ uv run notebook-parser parse -i page1.jpg -o page1.md --model ollama --ollama-mo
 uv run notebook-parser parse -i page1.jpg -o page1.md --template my-template.md
 ```
 
+### Extract bullet points
+```bash
+uv run notebook-parser parse -i page1.jpg -o page1.md --model claude --template templates/bullet-points-template.md --prompt bullet-points
+```
+
 ### Disable optimization (use original image)
 ```bash
 uv run notebook-parser parse -i page1.jpg -o page1.md --model claude --no-optimize
@@ -122,7 +129,9 @@ uv run notebook-parser parse -i page1.jpg -o page1.md --model claude --no-optimi
 
 ## Output Format
 
-The default template creates notes with this structure:
+### Default Template
+
+The default template (`templates/note-template.md`) creates notes with this structure:
 
 ```markdown
 **Title**: <extracted-title>
@@ -142,6 +151,41 @@ The default template creates notes with this structure:
 ## How I Might Use It
 
 *To be filled*
+```
+
+### Bullet Points Template
+
+The bullet points template (`templates/bullet-points-template.md`) creates simpler notes:
+
+```markdown
+**Title**: <extracted-title>
+**Source**: <image-filename>
+**Date**: <current-date>
+**Tags**: #notes #handwritten
+**Status**: Bullet Points
+
+## Key Points
+
+<extracted-bullet-points>
+```
+
+## Custom Prompts
+
+Prompts are stored in the `prompts/` directory and guide how the AI extracts text from your images.
+
+### Available Prompts
+
+- **bullet-points** (`prompts/bullet-points.txt`): Extracts handwritten notes as bullet points, handling arrows and schemas
+
+### Creating Custom Prompts
+
+1. Create a new `.txt` file in the `prompts/` directory
+2. Write your extraction instructions
+3. Use it with: `--prompt your-prompt-name` (without .txt extension)
+
+Example prompt structure:
+```
+These are handwritten notes, they may contain arrows and schemas too. Transform it to bullet points.
 ```
 
 ## Image Optimization
