@@ -23,10 +23,21 @@ uv sync
 ### Using Claude API (Best Quality)
 
 1. Get your API key from [Anthropic Console](https://console.anthropic.com/)
-2. Set your API key:
-```bash
-export ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
-```
+2. Set your API key (choose one method):
+
+   **Option A: Using .env file (recommended)**
+   ```bash
+   # Copy the example file
+   cp .env.example .env
+
+   # Edit .env and add your key
+   # ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+   ```
+
+   **Option B: Export environment variable**
+   ```bash
+   export ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+   ```
 
 3. Parse a notebook image:
 ```bash
