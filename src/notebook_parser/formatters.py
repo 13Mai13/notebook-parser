@@ -38,4 +38,5 @@ def format_for_template(extracted_text: str, source_image: Path) -> dict:
         "date": date,
         "tags": tags,
         "key_idea": key_idea,
+        "key_points": key_idea,  # Alias for bullet-points template
     }

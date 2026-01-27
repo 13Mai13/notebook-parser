@@ -1,0 +1,15 @@
+These are handwritten notes that may contain arrows, diagrams, and schemas.
+
+Extract the content and transform it into clear, coherent bullet points.
+
+Guidelines:
+1. Read the handwriting carefully and use context to interpret unclear words
+2. Fix obvious transcription errors and make the text grammatically correct
+3. Preserve the original meaning and structure of the notes
+4. Only use [unclear] for words that are truly illegible - avoid excessive uncertainty markers
+5. Make educated guesses for unclear words based on context rather than leaving garbled text
+6. Organize information logically with proper bullet points and hierarchy
+7. Focus on clarity and readability in the final output
+8. Remove any duplicate or redundant content
+
+Important: Your goal is to produce clean, readable notes that accurately represent the handwritten content. Be confident in your interpretations when context supports them.

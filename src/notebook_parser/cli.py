@@ -5,12 +5,16 @@ CLI commands for notebook-parser.
 import typer
 from pathlib import Path
 from typing import Optional
+from dotenv import load_dotenv
 
 from .ocr import extract_text_local, preprocess_image
 from .template_engine import TemplateEngine
 from .formatters import format_for_template
 from .llm.claude_vision import extract_with_claude
 from .llm.ollama_vision import extract_with_ollama
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = typer.Typer(help="Parse physical notebook images to markdown notes")
 
@@ -56,6 +60,12 @@ def parse(
         "--template",
         "-t",
         help="Custom template file (default: templates/note-template.md)"
+    ),
+    prompt: Optional[str] = typer.Option(
+        None,
+        "--prompt",
+        "-p",
+        help="Prompt name to use (without .txt extension, e.g., 'bullet-points')"
     ),
     model: str = typer.Option(
         "local",
@@ -126,7 +136,7 @@ def parse(
             extracted_text = extract_text_local(input_path, preprocess=preprocess)
 
         elif model == "claude":
-            typer.echo("Using Claude 3.5 Sonnet vision API...", err=True)
+            typer.echo("Using Claude Sonnet 4.5 vision API...", err=True)
             if optimize:
                 typer.echo(f"  Optimizing image (grayscale: {grayscale})...", err=True)
             extracted_text = extract_with_claude(
@@ -134,7 +144,8 @@ def parse(
                 template_content=template_content,
                 api_key=api_key,
                 optimize=optimize,
-                grayscale=grayscale
+                grayscale=grayscale,
+                prompt_name=prompt
             )
 
         elif model == "ollama":
@@ -147,7 +158,8 @@ def parse(
                 model=ollama_model,
                 ollama_url=ollama_url,
                 optimize=optimize,
-                grayscale=grayscale
+                grayscale=grayscale,
+                prompt_name=prompt
             )
 
         else:
