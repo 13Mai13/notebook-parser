@@ -6,6 +6,7 @@ Requires Ollama to be installed and running locally.
 import requests
 from pathlib import Path
 from ..image_optimizer import optimize_for_llm, image_to_base64
+from ..prompt_loader import PromptLoader
 
 
 def extract_with_ollama(
@@ -14,7 +15,8 @@ def extract_with_ollama(
     model: str = "llama3.2-vision", # lava:13b
     ollama_url: str = "http://localhost:11434",
     optimize: bool = True,
-    grayscale: bool = False
+    grayscale: bool = False,
+    prompt_name: str = None
 ) -> str:
     """
     Extract text from image using local Ollama vision model.
@@ -26,6 +28,7 @@ def extract_with_ollama(
         ollama_url: Ollama API endpoint
         optimize: Whether to optimize image
         grayscale: Convert to grayscale
+        prompt_name: Name of prompt to use (without .txt). If None, uses default
 
     Returns:
         Extracted text
@@ -57,23 +60,18 @@ def extract_with_ollama(
     # Convert to base64
     image_b64 = image_to_base64(image_bytes)
 
-    # Craft prompt
-    prompt = f"""You are an expert at reading handwritten notes from notebook images.
+    # Load prompt
+    if prompt_name:
+        base_prompt = PromptLoader.load_prompt(prompt_name)
+    else:
+        base_prompt = PromptLoader.get_default_prompt()
 
-Extract ALL the text from this notebook page image. Be thorough and accurate.
+    # Craft full prompt with template context
+    prompt = f"""{base_prompt}
 
 The extracted text will be used to fill this template:
 
-{template_content}
-
-Instructions:
-1. Read all handwritten text carefully
-2. Preserve the structure (headings, lists, paragraphs)
-3. Return ONLY the extracted text content for the "Key Idea" section
-4. Do not add explanations or meta-commentary
-5. If text is unclear, make your best attempt
-
-Return the extracted text:"""
+{template_content}"""
 
     # Call Ollama API
     payload = {

@@ -57,6 +57,12 @@ def parse(
         "-t",
         help="Custom template file (default: templates/note-template.md)"
     ),
+    prompt: Optional[str] = typer.Option(
+        None,
+        "--prompt",
+        "-p",
+        help="Prompt name to use (without .txt extension, e.g., 'bullet-points')"
+    ),
     model: str = typer.Option(
         "local",
         "--model",
@@ -134,7 +140,8 @@ def parse(
                 template_content=template_content,
                 api_key=api_key,
                 optimize=optimize,
-                grayscale=grayscale
+                grayscale=grayscale,
+                prompt_name=prompt
             )
 
         elif model == "ollama":
@@ -147,7 +154,8 @@ def parse(
                 model=ollama_model,
                 ollama_url=ollama_url,
                 optimize=optimize,
-                grayscale=grayscale
+                grayscale=grayscale,
+                prompt_name=prompt
             )
 
         else:

@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from anthropic import Anthropic
 from ..image_optimizer import optimize_for_llm, image_to_base64
+from ..prompt_loader import PromptLoader
 
 
 def extract_with_claude(
@@ -13,7 +14,8 @@ def extract_with_claude(
     template_content: str,
     api_key: str = None,
     optimize: bool = True,
-    grayscale: bool = False
+    grayscale: bool = False,
+    prompt_name: str = None
 ) -> str:
     """
     Extract text from image using Claude vision API.
@@ -24,6 +26,7 @@ def extract_with_claude(
         api_key: Anthropic API key (defaults to ANTHROPIC_API_KEY env var)
         optimize: Whether to optimize image (resize, compress)
         grayscale: Convert to grayscale to save tokens
+        prompt_name: Name of prompt to use (without .txt). If None, uses default
 
     Returns:
         Extracted and structured text matching template
@@ -56,23 +59,18 @@ def extract_with_claude(
     # Create Claude client
     client = Anthropic(api_key=api_key)
 
-    # Craft prompt
-    prompt = f"""You are an expert at reading handwritten notes from notebook images.
+    # Load prompt
+    if prompt_name:
+        base_prompt = PromptLoader.load_prompt(prompt_name)
+    else:
+        base_prompt = PromptLoader.get_default_prompt()
 
-Extract ALL the text from this notebook page image. Be thorough and accurate.
+    # Craft full prompt with template context
+    prompt = f"""{base_prompt}
 
 The extracted text will be used to fill this template:
 
-{template_content}
-
-Instructions:
-1. Read all handwritten text carefully
-2. Preserve the structure (headings, lists, paragraphs)
-3. Return ONLY the extracted text content for the "Key Idea" section
-4. Do not add explanations or meta-commentary
-5. If text is unclear, make your best attempt
-
-Return the extracted text:"""
+{template_content}"""
 
     # Call Claude vision API
     message = client.messages.create(
