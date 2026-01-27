@@ -44,6 +44,8 @@ uv sync
 uv run notebook-parser parse -i notebook.jpg -o note.md --model claude
 ```
 
+**Note**: Uses Claude Sonnet 4.5 (latest model as of January 2026)
+
 ### Using Ollama (Local, Private)
 
 1. Install and start Ollama:
@@ -79,7 +81,7 @@ notebook-parser parse [OPTIONS]
 **Model Options:**
 - `--model [local|claude|ollama]`: Model to use (default: local)
   - `local`: TrOCR (basic OCR, lower quality)
-  - `claude`: Claude 3.5 Sonnet vision API (best quality, requires API key)
+  - `claude`: Claude Sonnet 4.5 vision API (best quality, requires API key)
   - `ollama`: Local Ollama vision model (good quality, fully private)
 
 **Image Optimization Options:**

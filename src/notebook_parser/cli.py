@@ -136,7 +136,7 @@ def parse(
             extracted_text = extract_text_local(input_path, preprocess=preprocess)
 
         elif model == "claude":
-            typer.echo("Using Claude 3.5 Sonnet vision API...", err=True)
+            typer.echo("Using Claude Sonnet 4.5 vision API...", err=True)
             if optimize:
                 typer.echo(f"  Optimizing image (grayscale: {grayscale})...", err=True)
             extracted_text = extract_with_claude(
