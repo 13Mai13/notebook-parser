@@ -11,7 +11,7 @@ from ..image_optimizer import optimize_for_llm, image_to_base64
 def extract_with_ollama(
     image_path: Path,
     template_content: str,
-    model: str = "llama3.2-vision",
+    model: str = "llama3.2-vision", # lava:13b
     ollama_url: str = "http://localhost:11434",
     optimize: bool = True,
     grayscale: bool = False
