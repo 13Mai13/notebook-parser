@@ -5,12 +5,16 @@ CLI commands for notebook-parser.
 import typer
 from pathlib import Path
 from typing import Optional
+from dotenv import load_dotenv
 
 from .ocr import extract_text_local, preprocess_image
 from .template_engine import TemplateEngine
 from .formatters import format_for_template
 from .llm.claude_vision import extract_with_claude
 from .llm.ollama_vision import extract_with_ollama
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = typer.Typer(help="Parse physical notebook images to markdown notes")
 

@@ -74,7 +74,7 @@ The extracted text will be used to fill this template:
 
     # Call Claude vision API
     message = client.messages.create(
-        model="claude-3-5-sonnet-20241022",  # Latest vision model
+        model="claude-3-5-sonnet-20240620",  # Claude 3.5 Sonnet vision model
         max_tokens=4096,
         messages=[
             {
