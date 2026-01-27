@@ -208,3 +208,6 @@ __marimo__/
 
 # Mac OS
 .DS_Store
+
+# Results 
+/results

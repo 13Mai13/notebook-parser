@@ -130,9 +130,14 @@ uv run notebook-parser parse -i page1.jpg -o page1.md --model ollama --ollama-mo
 uv run notebook-parser parse -i page1.jpg -o page1.md --template my-template.md
 ```
 
-### Extract bullet points
+### Extract bullet points (basic)
 ```bash
 uv run notebook-parser parse -i page1.jpg -o page1.md --model claude --template templates/bullet-points-template.md --prompt bullet-points
+```
+
+### Extract bullet points (clean, recommended)
+```bash
+uv run notebook-parser parse -i page1.jpg -o page1.md --model claude --template templates/bullet-points-template.md --prompt clean-bullet-points
 ```
 
 ### Disable optimization (use original image)
@@ -188,7 +193,8 @@ Prompts are stored in the `prompts/` directory and guide how the AI extracts tex
 
 ### Available Prompts
 
-- **bullet-points** (`prompts/bullet-points.txt`): Extracts handwritten notes as bullet points, handling arrows and schemas
+- **bullet-points** (`prompts/bullet-points.txt`): Basic extraction as bullet points, handling arrows and schemas
+- **clean-bullet-points** (`prompts/clean-bullet-points.txt`): Advanced extraction with interpretation, error correction, and cleaner output (recommended)
 
 ### Creating Custom Prompts
 
