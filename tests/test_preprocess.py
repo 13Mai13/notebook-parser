@@ -6,7 +6,7 @@ import pytest
 from pathlib import Path
 from PIL import Image
 import numpy as np
-from main import preprocess_image
+from notebook_parser.ocr import preprocess_image
 
 
 def test_preprocess_image_returns_pil_image(test_image_path):

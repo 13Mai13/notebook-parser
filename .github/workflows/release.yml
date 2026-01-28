@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags like v0.1.0, v1.0.0, etc.
+
+permissions:
+  contents: write  # Required to create releases
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for changelog generation
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: |
+          uv sync
+
+      - name: Run tests
+        run: |
+          uv run pytest
+
+      - name: Build package
+        run: |
+          uv build
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        id: changelog
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -z "$PREV_TAG" ]; then
+            # First release - get all commits
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            # Get commits since last tag
+            COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+
+          # Create release notes
+          cat > release_notes.md << EOF
+          ## What's Changed
+
+          ${COMMITS}
+
+          ## Installation
+
+          ### Using uv (recommended)
+          \`\`\`bash
+          git clone https://github.com/13Mai13/notebook-parser.git
+          cd notebook-parser
+          git checkout ${{ steps.version.outputs.TAG }}
+          uv sync
+          \`\`\`
+
+          ### Using pip
+          \`\`\`bash
+          pip install dist/notebook_parser-${{ steps.version.outputs.VERSION }}-py3-none-any.whl
+          \`\`\`
+
+          ## Quick Start
+
+          \`\`\`bash
+          # Set your API key
+          export ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+
+          # Parse a notebook image
+          uv run notebook-parser parse -i notebook.jpg --model claude
+          \`\`\`
+
+          See the [README](https://github.com/13Mai13/notebook-parser#readme) for full documentation.
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
