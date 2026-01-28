@@ -649,8 +649,8 @@ dev = [
 requires-dist = [
     { name = "anthropic", specifier = ">=0.40.0" },
     { name = "easyocr", specifier = ">=1.7.2" },
-    { name = "numpy", specifier = ">=2.4.1" },
-    { name = "opencv-python", specifier = ">=4.13.0.90" },
+    { name = "numpy", specifier = ">=1.24.0,<3.0.0" },
+    { name = "opencv-python", specifier = ">=4.10.0" },
     { name = "pillow", specifier = ">=10.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
