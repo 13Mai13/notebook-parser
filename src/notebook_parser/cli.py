@@ -54,7 +54,12 @@ def read(
 @app.command()
 def parse(
     input_path: Path = typer.Option(..., "--input", "-i", help="Input image file"),
-    output: Path = typer.Option(..., "--output", "-o", help="Output markdown file"),
+    output: Optional[Path] = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Output markdown file (default: results/<input-name>.md)"
+    ),
     template: Optional[Path] = typer.Option(
         None,
         "--template",
@@ -108,11 +113,19 @@ def parse(
 
     Example:
         notebook-parser parse -i notebook.jpg -o note.md
+        notebook-parser parse -i notebook.jpg  # outputs to results/notebook.md
     """
     # Validate input
     if not input_path.exists():
         typer.echo(f"Error: Input file '{input_path}' not found.", err=True)
         raise typer.Exit(1)
+
+    # Generate default output path if not provided
+    if output is None:
+        from pathlib import Path as PathlibPath
+        results_dir = PathlibPath("results")
+        results_dir.mkdir(exist_ok=True)
+        output = results_dir / f"{input_path.stem}.md"
 
     # Load template
     if template is None:
