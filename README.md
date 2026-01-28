@@ -41,10 +41,14 @@ uv sync
 
 3. Parse a notebook image:
 ```bash
+# With custom output path
 uv run notebook-parser parse -i notebook.jpg -o note.md --model claude
+
+# Or use default (outputs to results/notebook.md)
+uv run notebook-parser parse -i notebook.jpg --model claude
 ```
 
-**Note**: Uses Claude Sonnet 4.5 (latest model as of January 2026)
+**Note**: Uses Claude Sonnet 4.5 (latest model as of January 2026). If no output path is specified, files are saved to `results/` directory with the same name as the input file.
 
 ### Using Ollama (Local, Private)
 
@@ -76,7 +80,9 @@ notebook-parser parse [OPTIONS]
 
 **Required Options:**
 - `-i, --input PATH`: Input image file
-- `-o, --output PATH`: Output markdown file
+
+**Optional Output:**
+- `-o, --output PATH`: Output markdown file (default: `results/<input-name>.md`)
 
 **Model Options:**
 - `--model [local|claude|ollama]`: Model to use (default: local)
@@ -109,40 +115,46 @@ notebook-parser read notebook.jpg
 
 ## Examples
 
-### Basic usage with Claude
+### Basic usage with Claude (auto-output to results/)
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-api03-xxx
-uv run notebook-parser parse -i page1.jpg -o page1.md --model claude
+uv run notebook-parser parse -i page1.jpg --model claude
+# Outputs to: results/page1.md
+```
+
+### Specify custom output path
+```bash
+uv run notebook-parser parse -i page1.jpg -o my-notes/page1.md --model claude
 ```
 
 ### Grayscale optimization to save tokens
 ```bash
-uv run notebook-parser parse -i page1.jpg -o page1.md --model claude --grayscale
+uv run notebook-parser parse -i page1.jpg --model claude --grayscale
 ```
 
 ### Using local Ollama with custom model
 ```bash
-uv run notebook-parser parse -i page1.jpg -o page1.md --model ollama --ollama-model llava
+uv run notebook-parser parse -i page1.jpg --model ollama --ollama-model llava
 ```
 
 ### Custom template
 ```bash
-uv run notebook-parser parse -i page1.jpg -o page1.md --template my-template.md
+uv run notebook-parser parse -i page1.jpg --template my-template.md
 ```
 
 ### Extract bullet points (basic)
 ```bash
-uv run notebook-parser parse -i page1.jpg -o page1.md --model claude --template templates/bullet-points-template.md --prompt bullet-points
+uv run notebook-parser parse -i page1.jpg --model claude --template templates/bullet-points-template.md --prompt bullet-points
 ```
 
 ### Extract bullet points (clean, recommended)
 ```bash
-uv run notebook-parser parse -i page1.jpg -o page1.md --model claude --template templates/bullet-points-template.md --prompt clean-bullet-points
+uv run notebook-parser parse -i page1.jpg --model claude --template templates/bullet-points-template.md --prompt clean-bullet-points
 ```
 
 ### Disable optimization (use original image)
 ```bash
-uv run notebook-parser parse -i page1.jpg -o page1.md --model claude --no-optimize
+uv run notebook-parser parse -i page1.jpg --model claude --no-optimize
 ```
 
 ## Output Format
