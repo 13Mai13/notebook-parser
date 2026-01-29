@@ -15,4 +15,9 @@ Guidelines:
 8. Focus on clarity and readability in the final output
 9. Remove any duplicate or redundant content
 
-Important: The tags provide valuable context about the note's subject matter. Use this context to interpret ambiguous words or concepts. Be confident in your interpretations when the context and tags support them.
+Important:
+- The tags provide valuable context about the note's subject matter. Use this context to interpret ambiguous words or concepts.
+- Return ONLY the bullet points content itself
+- Do NOT include any template structure (Title, Source, Date, Tags, Status headers)
+- Do NOT include "## Key Points" heading - just the bullet points
+- Your output will be inserted into a template, so only provide the content

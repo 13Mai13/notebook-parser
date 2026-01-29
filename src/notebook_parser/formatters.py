@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 
-def format_for_template(extracted_text: str, source_image: Path, generated_tags: str = None) -> dict:
+def format_for_template(extracted_text: str, source_image: Path, generated_tags: str = None, custom_source: str = None) -> dict:
     """
     Format extracted OCR text into template variables.
 
@@ -14,6 +14,7 @@ def format_for_template(extracted_text: str, source_image: Path, generated_tags:
         extracted_text: Raw text from OCR
         source_image: Path to source image file
         generated_tags: Optional AI-generated tags (with # prefix)
+        custom_source: Optional custom source description
 
     Returns:
         Dictionary of template variables
@@ -24,8 +25,8 @@ def format_for_template(extracted_text: str, source_image: Path, generated_tags:
     # Use current date
     date = datetime.now().strftime("%Y-%m-%d")
 
-    # Source is the image filename
-    source = source_image.name
+    # Use custom source if provided, otherwise image filename
+    source = custom_source if custom_source else source_image.name
 
     # Combine generated tags with default tags
     if generated_tags:

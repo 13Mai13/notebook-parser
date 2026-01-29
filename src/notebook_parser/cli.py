@@ -112,6 +112,12 @@ def parse(
         "--tags",
         help="Generate tags first, then use as context for better extraction (Claude only)"
     ),
+    source: Optional[str] = typer.Option(
+        None,
+        "--source",
+        "-s",
+        help="Custom source description (default: image filename)"
+    ),
 ) -> None:
     """
     Parse notebook image to markdown note.
@@ -201,7 +207,7 @@ def parse(
             raise typer.Exit(1)
 
         # Format into template variables
-        template_vars = format_for_template(extracted_text, input_path, generated_tags)
+        template_vars = format_for_template(extracted_text, input_path, generated_tags, source)
 
         # Render template
         engine = TemplateEngine(template_path)

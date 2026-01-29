@@ -12,4 +12,10 @@ Guidelines:
 7. Focus on clarity and readability in the final output
 8. Remove any duplicate or redundant content
 
-Important: Your goal is to produce clean, readable notes that accurately represent the handwritten content. Be confident in your interpretations when context supports them.
+Important:
+- Your goal is to produce clean, readable notes that accurately represent the handwritten content
+- Be confident in your interpretations when context supports them
+- Return ONLY the bullet points content itself
+- Do NOT include any template structure (Title, Source, Date, Tags, Status headers)
+- Do NOT include "## Key Points" heading - just the bullet points
+- Your output will be inserted into a template, so only provide the content
