@@ -6,13 +6,15 @@ from datetime import datetime
 from pathlib import Path
 
 
-def format_for_template(extracted_text: str, source_image: Path) -> dict:
+def format_for_template(extracted_text: str, source_image: Path, generated_tags: str = None, custom_source: str = None) -> dict:
     """
     Format extracted OCR text into template variables.
 
     Args:
         extracted_text: Raw text from OCR
         source_image: Path to source image file
+        generated_tags: Optional AI-generated tags (with # prefix)
+        custom_source: Optional custom source description
 
     Returns:
         Dictionary of template variables
@@ -23,11 +25,14 @@ def format_for_template(extracted_text: str, source_image: Path) -> dict:
     # Use current date
     date = datetime.now().strftime("%Y-%m-%d")
 
-    # Source is the image filename
-    source = source_image.name
+    # Use custom source if provided, otherwise image filename
+    source = custom_source if custom_source else source_image.name
 
-    # Default tags
-    tags = "#notes #handwritten"
+    # Combine generated tags with default tags
+    if generated_tags:
+        tags = f"{generated_tags} #notes #handwritten"
+    else:
+        tags = "#notes #handwritten"
 
     # Key idea is the extracted text (trimmed)
     key_idea = extracted_text.strip() if extracted_text.strip() else "*No text extracted*"

@@ -2,7 +2,7 @@
 **Source**: {{source}}
 **Date**: {{date}}
 **Tags**: {{tags}}
-**Status**: Bullet Points
+**Status**: #RawNotes
 
 ## Key Points
 

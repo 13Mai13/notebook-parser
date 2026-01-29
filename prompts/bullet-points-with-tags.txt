@@ -1,0 +1,23 @@
+These are handwritten notes that may contain arrows, diagrams, and schemas.
+
+Context: The main topics of this note are: {tags}
+
+Extract the content and transform it into clear, coherent bullet points.
+
+Guidelines:
+1. Use the provided tags/topics as context to better understand unclear words or concepts
+2. Read the handwriting carefully and interpret unclear text based on the note's context
+3. Fix obvious transcription errors and make the text grammatically correct
+4. Preserve the original meaning and structure of the notes
+5. Only use [unclear] for words that are truly illegible even with context - avoid excessive uncertainty markers
+6. Make educated guesses for unclear words based on the context (topics/tags) rather than leaving garbled text
+7. Organize information logically with proper bullet points and hierarchy
+8. Focus on clarity and readability in the final output
+9. Remove any duplicate or redundant content
+
+Important:
+- The tags provide valuable context about the note's subject matter. Use this context to interpret ambiguous words or concepts.
+- Return ONLY the bullet points content itself
+- Do NOT include any template structure (Title, Source, Date, Tags, Status headers)
+- Do NOT include "## Key Points" heading - just the bullet points
+- Your output will be inserted into a template, so only provide the content

@@ -47,8 +47,8 @@ class TemplateEngine:
 
     @staticmethod
     def get_default_template() -> Path:
-        """Get path to default note template."""
+        """Get path to default bullet points template."""
         # Get project root (notebook-parser directory)
         current_file = Path(__file__)
         project_root = current_file.parent.parent.parent
-        return project_root / "templates" / "note-template.md"
+        return project_root / "templates" / "bullet-points-template.md"
