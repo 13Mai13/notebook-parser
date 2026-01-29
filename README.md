@@ -4,10 +4,12 @@ Transform physical notebook images into structured markdown notes using AI visio
 
 ## Features
 
+- **Tag-based extraction**: Generate contextual tags first, then use them to improve extraction accuracy (Claude only)
 - **Multiple model support**: Choose between local TrOCR, Claude API, or local Ollama vision models
 - **Image optimization**: Automatic resizing, compression, and optional grayscale conversion to reduce token usage
 - **Template-based output**: Customizable markdown templates for consistent note formatting
 - **Custom prompts**: Use different prompts for different extraction tasks (e.g., bullet points, detailed notes)
+- **Custom source**: Specify your own source description instead of using the filename
 - **Test-driven development**: Comprehensive pytest suite with 73% test coverage
 
 ## Installation
@@ -41,11 +43,17 @@ uv sync
 
 3. Parse a notebook image:
 ```bash
-# With custom output path
-uv run notebook-parser parse -i notebook.jpg -o note.md --model claude
-
-# Or use default (outputs to results/notebook.md)
+# Basic usage (outputs to results/notebook.md with bullet points template)
 uv run notebook-parser parse -i notebook.jpg --model claude
+
+# With tag-based extraction for better accuracy (recommended)
+uv run notebook-parser parse -i notebook.jpg --model claude --tags
+
+# With custom output path
+uv run notebook-parser parse -i notebook.jpg -o note.md --model claude --tags
+
+# With custom source description
+uv run notebook-parser parse -i notebook.jpg --model claude --tags --source "My Lecture Notes"
 ```
 
 **Note**: Uses Claude Sonnet 4.5 (latest model as of January 2026). If no output path is specified, files are saved to `results/` directory with the same name as the input file.
@@ -96,14 +104,18 @@ notebook-parser parse [OPTIONS]
 
 **Claude-specific Options:**
 - `--api-key TEXT`: Anthropic API key (or set ANTHROPIC_API_KEY env var)
+- `--tags`: Generate tags first, then use as context for better extraction (recommended)
 
 **Ollama-specific Options:**
 - `--ollama-model TEXT`: Ollama model name (default: llama3.2-vision)
 - `--ollama-url TEXT`: Ollama API endpoint (default: http://localhost:11434)
 
 **Template Options:**
-- `-t, --template PATH`: Custom template file (default: templates/note-template.md)
+- `-t, --template PATH`: Custom template file (default: templates/bullet-points-template.md)
 - `-p, --prompt TEXT`: Prompt name to use (without .txt extension, e.g., 'bullet-points')
+
+**Source Options:**
+- `-s, --source TEXT`: Custom source description (default: image filename)
 
 ### Read Command (Quick OCR)
 
@@ -122,14 +134,26 @@ uv run notebook-parser parse -i page1.jpg --model claude
 # Outputs to: results/page1.md
 ```
 
+### Tag-based extraction (recommended for best accuracy)
+```bash
+uv run notebook-parser parse -i page1.jpg --model claude --tags
+# Generates contextual tags first, then uses them to improve extraction
+```
+
+### With custom source description
+```bash
+uv run notebook-parser parse -i page1.jpg --model claude --tags --source "CS101 Lecture 3"
+# Sets source to "CS101 Lecture 3" instead of "page1.jpg"
+```
+
 ### Specify custom output path
 ```bash
-uv run notebook-parser parse -i page1.jpg -o my-notes/page1.md --model claude
+uv run notebook-parser parse -i page1.jpg -o my-notes/page1.md --model claude --tags
 ```
 
 ### Grayscale optimization to save tokens
 ```bash
-uv run notebook-parser parse -i page1.jpg --model claude --grayscale
+uv run notebook-parser parse -i page1.jpg --model claude --tags --grayscale
 ```
 
 ### Using local Ollama with custom model
@@ -137,19 +161,9 @@ uv run notebook-parser parse -i page1.jpg --model claude --grayscale
 uv run notebook-parser parse -i page1.jpg --model ollama --ollama-model llava
 ```
 
-### Custom template
+### Custom template with custom prompt
 ```bash
-uv run notebook-parser parse -i page1.jpg --template my-template.md
-```
-
-### Extract bullet points (basic)
-```bash
-uv run notebook-parser parse -i page1.jpg --model claude --template templates/bullet-points-template.md --prompt bullet-points
-```
-
-### Extract bullet points (clean, recommended)
-```bash
-uv run notebook-parser parse -i page1.jpg --model claude --template templates/bullet-points-template.md --prompt clean-bullet-points
+uv run notebook-parser parse -i page1.jpg --model claude --template templates/note-template.md --prompt clean-bullet-points
 ```
 
 ### Disable optimization (use original image)
@@ -159,9 +173,27 @@ uv run notebook-parser parse -i page1.jpg --model claude --no-optimize
 
 ## Output Format
 
-### Default Template
+### Default Template (Bullet Points)
 
-The default template (`templates/note-template.md`) creates notes with this structure:
+The default template (`templates/bullet-points-template.md`) creates clean bullet point notes:
+
+```markdown
+**Title**: <extracted-title>
+**Source**: <custom-source-or-filename>
+**Date**: <current-date>
+**Tags**: <generated-tags> #notes #handwritten
+**Status**: Bullet Points
+
+## Key Points
+
+<extracted-bullet-points>
+```
+
+When using `--tags`, the tags field will include AI-generated Obsidian-compatible tags (e.g., `#machine-learning #python`) along with the default tags.
+
+### Alternative: Note Template
+
+The note template (`templates/note-template.md`) provides a more structured format:
 
 ```markdown
 **Title**: <extracted-title>
@@ -183,21 +215,7 @@ The default template (`templates/note-template.md`) creates notes with this stru
 *To be filled*
 ```
 
-### Bullet Points Template
-
-The bullet points template (`templates/bullet-points-template.md`) creates simpler notes:
-
-```markdown
-**Title**: <extracted-title>
-**Source**: <image-filename>
-**Date**: <current-date>
-**Tags**: #notes #handwritten
-**Status**: Bullet Points
-
-## Key Points
-
-<extracted-bullet-points>
-```
+Use with: `--template templates/note-template.md`
 
 ## Custom Prompts
 
@@ -207,6 +225,10 @@ Prompts are stored in the `prompts/` directory and guide how the AI extracts tex
 
 - **bullet-points** (`prompts/bullet-points.txt`): Basic extraction as bullet points, handling arrows and schemas
 - **clean-bullet-points** (`prompts/clean-bullet-points.txt`): Advanced extraction with interpretation, error correction, and cleaner output (recommended)
+- **generate-tags** (`prompts/generate-tags.txt`): Generates Obsidian-compatible tags for the note (used automatically with `--tags`)
+- **bullet-points-with-tags** (`prompts/bullet-points-with-tags.txt`): Context-aware extraction using generated tags (used automatically with `--tags`)
+
+**Note**: When using the `--tags` flag, the system automatically uses `generate-tags` and `bullet-points-with-tags` prompts in a two-step process for improved accuracy.
 
 ### Creating Custom Prompts
 
@@ -265,3 +287,10 @@ uv run pytest --cov=src
 ### Poor OCR results with TrOCR
 - Use `--model claude` or `--model ollama` for better handwriting recognition
 - TrOCR works best with typed text, not handwritten notes
+
+# TODO: 
+
+- Compare models -> Benchmark
+- Test -> elevate testing converage
+- A/B test prompts
+- Prune docs / unused options
