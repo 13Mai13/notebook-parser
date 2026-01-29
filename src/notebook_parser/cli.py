@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from .ocr import extract_text_local, preprocess_image
 from .template_engine import TemplateEngine
 from .formatters import format_for_template
-from .llm.claude_vision import extract_with_claude
+from .llm.claude_vision import extract_with_claude, extract_with_claude_tags
 from .llm.ollama_vision import extract_with_ollama
 
 # Load environment variables from .env file
@@ -107,6 +107,11 @@ def parse(
         "--ollama-url",
         help="Ollama API endpoint"
     ),
+    tags: bool = typer.Option(
+        False,
+        "--tags",
+        help="Generate tags first, then use as context for better extraction (Claude only)"
+    ),
 ) -> None:
     """
     Parse notebook image to markdown note.
@@ -144,6 +149,8 @@ def parse(
         template_content = template_path.read_text()
 
         # Extract text based on model choice
+        generated_tags = None  # Initialize for all models
+
         if model == "local":
             typer.echo("Using local TrOCR model...", err=True)
             extracted_text = extract_text_local(input_path, preprocess=preprocess)
@@ -152,14 +159,27 @@ def parse(
             typer.echo("Using Claude Sonnet 4.5 vision API...", err=True)
             if optimize:
                 typer.echo(f"  Optimizing image (grayscale: {grayscale})...", err=True)
-            extracted_text = extract_with_claude(
-                image_path=input_path,
-                template_content=template_content,
-                api_key=api_key,
-                optimize=optimize,
-                grayscale=grayscale,
-                prompt_name=prompt
-            )
+
+            # Use two-step extraction with tags if --tags flag is enabled
+            if tags:
+                typer.echo("  Step 1: Generating tags...", err=True)
+                typer.echo("  Step 2: Extracting content with tags context...", err=True)
+                extracted_text, generated_tags = extract_with_claude_tags(
+                    image_path=input_path,
+                    template_content=template_content,
+                    api_key=api_key,
+                    optimize=optimize,
+                    grayscale=grayscale
+                )
+            else:
+                extracted_text = extract_with_claude(
+                    image_path=input_path,
+                    template_content=template_content,
+                    api_key=api_key,
+                    optimize=optimize,
+                    grayscale=grayscale,
+                    prompt_name=prompt
+                )
 
         elif model == "ollama":
             typer.echo(f"Using Ollama vision model ({ollama_model})...", err=True)
@@ -181,7 +201,7 @@ def parse(
             raise typer.Exit(1)
 
         # Format into template variables
-        template_vars = format_for_template(extracted_text, input_path)
+        template_vars = format_for_template(extracted_text, input_path, generated_tags)
 
         # Render template
         engine = TemplateEngine(template_path)
