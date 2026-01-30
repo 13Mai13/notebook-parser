@@ -3,11 +3,18 @@ Tests for CLI commands.
 """
 
 import pytest
+import re
 from typer.testing import CliRunner
 from pathlib import Path
 from main import app
 
 runner = CliRunner()
+
+
+def strip_ansi(text):
+    """Remove ANSI color codes from text."""
+    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
+    return ansi_escape.sub('', text)
 
 
 def test_read_command_with_existing_image(test_image_path):
@@ -48,8 +55,37 @@ def test_read_command_with_custom_model(temp_test_image):
 def test_read_command_help():
     """Test that help message is displayed."""
     result = runner.invoke(app, ["read", "--help"])
+    clean_output = strip_ansi(result.stdout)
 
     assert result.exit_code == 0
-    assert "Extract handwritten text" in result.stdout
-    assert "--model" in result.stdout
-    assert "--preprocess" in result.stdout
+    assert "Extract handwritten text" in clean_output
+    assert "--model" in clean_output
+    assert "--preprocess" in clean_output
+
+
+def test_parse_command_help():
+    """Test that parse command help displays all options."""
+    result = runner.invoke(app, ["parse", "--help"])
+    clean_output = strip_ansi(result.stdout)
+
+    assert result.exit_code == 0
+    assert "--input" in clean_output or "-i" in clean_output
+    assert "--output" in clean_output or "-o" in clean_output
+    assert "--model" in clean_output
+    assert "--tags" in clean_output
+    assert "--source" in clean_output or "-s" in clean_output
+
+
+def test_parse_command_missing_input():
+    """Test parse command fails without input."""
+    result = runner.invoke(app, ["parse"])
+
+    assert result.exit_code != 0
+
+
+def test_parse_command_nonexistent_input():
+    """Test parse command fails with nonexistent input file."""
+    result = runner.invoke(app, ["parse", "-i", "nonexistent.jpg"])
+
+    assert result.exit_code == 1
+    assert "not found" in result.stderr
